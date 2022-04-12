@@ -2,9 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import passport from 'passport';
 import dotenv from 'dotenv';
-import route from './routes/index.js';
-import userRouter from "./src/routes/user.router"
-import init from './init/index.js';
+import init from './src/init/index.js';
 
 const server = async () => {
     const app = express();
@@ -24,7 +22,7 @@ const server = async () => {
 
     app.use('/api/user/', userRouter);
     app.use('/auth/', authRouter);
-    
+
 
     app.listen(port, () => {
         console.log(`Example app listening on port ${process.env.PORT}`);
