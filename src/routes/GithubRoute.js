@@ -3,76 +3,156 @@ import { Router } from "express";
 import { UserModel } from "../models/index.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import axios from 'axios';
 
 function GithubRoute() {
   const router = Router();
 
-  app.post("/register", async (req, res, next) => {
+  const userStatus = {
+    inactive: "inactive",
+    active: "active",
+  };
+
+  const isLoggedIn = (req, res, next) => {
+    req.user ? next() : res.sendStatus(401);
+  };
+
+
+  router.get("/", (req, res) => {
+    res.redirect(
+      `https://github.com/login/oauth/authorize?client_id=44656768f3d173fe9945`
+    );
+  });
+
+  router.get("/callback", async (req, res) => {
     try {
-      var username = req.body.username;
-      var password = req.body.password;
-      const saltRounds = 10;
+      const body = {
+        client_id: "44656768f3d173fe9945",
+        client_secret: "11b933014b2d048a2ef4b71b1f20297f25c7c434",
+        code: req.query.code,
+      };
 
-      const salt = bcrypt.genSaltSync(saltRounds);
-      const hash = bcrypt.hashSync(password, salt);
+      const opts = { headers: { accept: "application/json" } };
+      const response = await axios.post(
+        "https://github.com/login/oauth/access_token",
+        body,
+        opts
+      );
+
+      //  return response?.data?.access_token;
+
+      const { data: userInfo } = await axios.get(
+        "https://api.github.com/user",
+        {
+          headers: {
+            Authorization: `token ${response.data.access_token}`,
+          },
+        }
+      );
+
       const user = await UserModel.findOne({
-        username: username,
-      });
+        githubId: userInfo.id,
+      }).exec();
 
-      // const compare = bcrypt.compareSync("12345rqwr6789", user.password); // true
+      let token;
 
-      if (user) {
-        return res.status(400).json({
-          code: 400,
-          message: "Account already exists!",
-        });
+      if (user && user.status === userStatus.inactive) {
+        throw new Error(
+          JSON.stringify({
+            code: 403,
+            message: "Inactive User",
+          })
+        );
       }
 
-      const create = await UserModel.create({
-        username,
-        password: hash,
-        role: "member",
+      if (user && user.status === userStatus.active) {
+        token = jwt.sign(
+          {
+            _id: user._id,
+          },
+          "nmcanhh_signature",
+          {
+            expiresIn: "7d",
+          }
+        );
+        return res.redirect(`${process.env.BE_HOST}?token=${token}`);
+      }
+
+      const createOne = await UserModel.create({
+        githubId: userInfo.id,
+        // firstName: userInfo.family_name,
+        // lastName: userInfo.given_name,
+        fullName: userInfo.name,
+        email: userInfo.email,
+        profilePhoto: userInfo.avatar_url,
+        status: userStatus.active,
+        role: 0,
       });
 
-      const result = create.toObject();
-      delete result.password;
+      token = jwt.sign(
+        {
+          _id: createOne._id,
+        },
+        "nmcanhh_signature",
+        {
+          expiresIn: "7d",
+        }
+      );
 
-      return res.send({
-        result,
-      });
+      return res.redirect(`${process.env.BE_HOST}?token=${token}`);
+
+      // console.log(req);
     } catch (error) {
       throw new Error(error);
     }
   });
 
-  app.post("/login", async (req, res, next) => {
+  router.get("/failure", (req, res, next) => {
+    res.send("Something went wrong!");
+  });
+
+  router.get("/protected", isLoggedIn, async (req, res, next) => {
     try {
-      var username = req.body.username;
-      var password = req.body.password;
-
-      const saltRounds = 10;
-      const salt = bcrypt.genSaltSync(saltRounds);
-      const hash = bcrypt.hashSync(password, salt);
-
+      const userInfo = req.user;
       const user = await UserModel.findOne({
-        username: username,
+        githubId: userInfo.id,
       }).exec();
-      if (!user) {
-        return res.status(400).json({
-          code: 400,
-          message: "Account does not exist!",
-        });
+
+      let token;
+
+      if (user && user.status === userStatus.inactive) {
+        throw new Error(
+          JSON.stringify({
+            code: 403,
+            message: "Inactive User",
+          })
+        );
       }
 
-      const compare = bcrypt.compareSync(password, user.password);
-
-      if (!compare) {
-        return res.status(400).json({
-          code: 400,
-          message: "Account or password is wrong!",
-        });
+      if (user && user.status === userStatus.active) {
+        token = jwt.sign(
+          {
+            _id: user._id,
+          },
+          "nmcanhh_signature",
+          {
+            expiresIn: "7d",
+          }
+        );
+        return res.redirect(`${process.env.BE_HOST}?token=${token}`);
       }
-      var token = jwt.sign(
+
+      const createOne = await UserModel.create({
+        githubId: userInfo.id,
+        firstName: userInfo.family_name,
+        lastName: userInfo.given_name,
+        fullName: userInfo.displayName,
+        email: userInfo._json.email,
+        profilePhoto: userInfo._json.avatar_url,
+        status: userStatus.active,
+      });
+
+      token = jwt.sign(
         {
           _id: user._id,
         },
@@ -81,13 +161,13 @@ function GithubRoute() {
           expiresIn: "7d",
         }
       );
-      return res.json({
-        message: "Create account success!",
-        token: token,
-      });
+
+      return res.redirect(`${process.env.BE_HOST}?token=${token}`);
     } catch (error) {
       throw new Error(error);
     }
   });
+
+  return router;
 }
 export default GithubRoute;

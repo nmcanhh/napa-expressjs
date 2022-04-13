@@ -1,9 +1,9 @@
 import { mongoose, Schema } from "../utils/mongoose.js";
-
-export const userStatus = {
-  inactive: "inactive",
-  active: "active",
-};
+import {
+  userStatus,
+  roleName,
+  rolesList
+} from "../constants/enum.js"
 
 const UserSchema = new Schema(
   {
@@ -12,7 +12,7 @@ const UserSchema = new Schema(
     },
     password: { type: String },
     status: {
-      type: String,
+      type: Number,
       enum: [userStatus.inactive, userStatus.active],
       default: userStatus.inactive,
     },
@@ -24,7 +24,7 @@ const UserSchema = new Schema(
     googleId: { type: String, default: null },
     githubId: { type: String, default: null },
     role: {
-      type: String,
+      type: Number,
     },
   },
   {
