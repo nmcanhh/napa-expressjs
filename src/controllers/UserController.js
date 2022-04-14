@@ -1,19 +1,19 @@
 import bcrypt from "bcrypt";
 import { UserModel } from "../models/index.js";
-import jwt from "jsonwebtoken";
+import EmailController from "./EmailController.js";
 
 const PAGE_SIZE = 10;
 
 const createUser = async (req, res, next) => {
     try {
-        var username = req.body.username;
+        var email = req.body.email;
         var password = req.body.password;
         const saltRounds = 10;
 
         const salt = bcrypt.genSaltSync(saltRounds);
         const hash = bcrypt.hashSync(password, salt);
         const user = await UserModel.findOne({
-            username: username,
+            email: email,
         });
 
         // const compare = bcrypt.compareSync("12345rqwr6789", user.password); // true
@@ -26,17 +26,21 @@ const createUser = async (req, res, next) => {
         }
 
         const create = await UserModel.create({
-            username,
+            email: email,
             password: hash,
-            role: "member",
+            role: 0,
+            verified: false
         });
 
         const result = create.toObject();
         delete result.password;
 
-        return res.send({
-            result,
-        });
+        const { error, data } = await EmailController.sendVerificationEmail({ _id: result._id, email }, res);
+
+        if (error) {
+            res.send(error);
+        }
+        return res.send(result);
     } catch (error) {
         throw new Error(error);
     }

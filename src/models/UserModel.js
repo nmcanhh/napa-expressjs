@@ -1,23 +1,18 @@
 import { mongoose, Schema } from "../utils/mongoose.js";
-import {
-  userStatus,
-  roleName,
-  rolesList
-} from "../constants/enum.js"
+import enumCommon from "../constants/enumCommon.js"
 
 const UserSchema = new Schema(
   {
-    username: {
+    email: {
       type: String,
     },
     password: { type: String },
     status: {
       type: Number,
-      enum: [userStatus.inactive, userStatus.active],
-      default: userStatus.inactive,
+      enum: [enumCommon.userStatus.inactive, enumCommon.userStatus.active],
+      default: enumCommon.userStatus.inactive,
     },
     profilePhoto: { type: String },
-    email: { type: String },
     firstName: { type: String, default: null },
     lastName: { type: String, default: null },
     fullName: { type: String, default: null },
@@ -26,6 +21,7 @@ const UserSchema = new Schema(
     role: {
       type: Number,
     },
+    verified: { type: Boolean },
   },
   {
     versionKey: false,

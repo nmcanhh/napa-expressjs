@@ -1,16 +1,16 @@
 import express from "express";
 import bodyParser from "body-parser";
 import passport from "passport";
-import dotenv from "dotenv";
 import init from "./src/init/index.js";
 import UserRoute from "./src/routes/UserRoute.js";
 import AuthRoute from "./src/routes/AuthRoute.js";
 import GithubRoute from "./src/routes/GithubRoute.js";
 import GoogleRoute from "./src/routes/GoogleRoute.js";
-import bcrypt from "bcrypt";
-import { UserModel } from "./src/models/index.js";
-import jwt from "jsonwebtoken";
 import GoogleStrategy from 'passport-google-oauth2';
+import EmailRoute from "./src/routes/EmailRoute.js";
+import VerifyRoute from "./src/routes/VerifyRoute.js";
+
+
 
 const port = 3000;
 const server = async () => {
@@ -64,6 +64,8 @@ const server = async () => {
     app.use("/auth/", AuthRoute());
     app.use("/auth/github/", GithubRoute());
     app.use("/auth/google/", GoogleRoute());
+    app.use("/api/send-email/", EmailRoute());
+    app.use("/", VerifyRoute());
 
 
     app.get("/logout", (req, res) => {

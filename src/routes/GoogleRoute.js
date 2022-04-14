@@ -1,9 +1,6 @@
-import express from "express";
 import { Router } from "express";
 import { UserModel } from "../models/index.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import axios from 'axios';
 import passport from 'passport';
 
 

@@ -1,8 +1,4 @@
-import express from "express";
 import { Router } from "express";
-import { UserModel } from "../models/index.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import UserController from "../controllers/UserController.js"
 import Authorization from "../middlewares/Authorization.js"
 import Authentication from "../middlewares/Authentication.js"

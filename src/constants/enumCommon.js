@@ -10,7 +10,7 @@ const roleName = {
 
 const rolesList = [0, 1];
 
-export {
+export default {
     userStatus,
     roleName,
     rolesList,

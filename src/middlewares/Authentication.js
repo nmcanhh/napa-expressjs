@@ -1,8 +1,7 @@
-import {
-    userStatus,
-    roleName,
-    rolesList
-} from "../constants/enum.js"
+import jwt from "jsonwebtoken";
+import UserModel from "../models/UserModel.js";
+
+
 
 const checkLogin = async (req, res, next) => {
     try {

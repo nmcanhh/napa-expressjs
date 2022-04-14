@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const login = async (req, res, next) => {
     try {
-        var username = req.body.username;
+        var email = req.body.email;
         var password = req.body.password;
 
         const saltRounds = 10;
@@ -12,7 +12,7 @@ const login = async (req, res, next) => {
         const hash = bcrypt.hashSync(password, salt);
 
         const user = await UserModel.findOne({
-            username: username,
+            email: email,
         }).exec();
         if (!user) {
             return res.status(400).json({

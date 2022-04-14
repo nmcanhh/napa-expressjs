@@ -1,12 +1,8 @@
-import {
-    userStatus,
-    roleName,
-    rolesList
-} from "../constants/enum.js"
+import enumCommon from "../constants/enumCommon.js"
 
 const checkRole = (req, res, next) => {
     var role = req.user.role;
-    if (role === roleName.admin) {
+    if (role === enumCommon.roleName.admin) {
         next();
     } else {
         return res.status(403).json({
