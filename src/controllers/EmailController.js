@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const emailAccount = {
+    user: process.env.ETHEREAL_USER,
+    password: process.env.ETHEREAL_PASSWORD,
+}
+
 
 const sendEmail = async (req, res, next) => {
     try {
@@ -16,8 +21,8 @@ const sendEmail = async (req, res, next) => {
             port: 587,
             secure: false, // true for 465, false for other ports
             auth: {
-                user: process.env.ETHEREAL_USER, // generated ethereal user
-                pass: process.env.ETHEREAL_PASSWORD, // generated ethereal password
+                user: emailAccount.user, // generated ethereal user
+                pass: emailAccount.password, // generated ethereal password
             },
         });
 
@@ -87,7 +92,7 @@ const sendVerificationEmail = async ({ _id, email }, res) => {
         to: email,
         subject: "Xác minh tài khoản",
         html: `<p>Verify your email address to complete the signup and login into your account.</p><p>This link expires in</p>
-        <b>expires in 6 hours</b>.</p> <p>Press <a href=${process.env.BE_HOST + "/user/verify/" + _id + "/" + hashedUniqueString
+        <b>expires in 6 hours</b>.</p> <p>Press <a href=${process.env.BE_HOST + "/verify/" + _id + "/" + hashedUniqueString
             }>here</a> to proceed.</p>`,
     }
 

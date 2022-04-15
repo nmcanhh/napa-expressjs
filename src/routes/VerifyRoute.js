@@ -23,15 +23,15 @@ function VerifyRoute() {
                     UserVerification.deleteOne({ userId }).then(result => {
                         UserModel.deleteOne({ _id: userId }).then(() => {
                             let message = "Link has expired. Please sign up again.";
-                            res.redirect(`/user/verified/error=true & message=${message}`);
+                            res.redirect(`/verified/error=true & message=${message}`);
                         }).catch(err => {
                             let message = "Clearing user with expired unique string failed.";
-                            res.redirect(`/user/verified/error=true & message=${message}`);
+                            res.redirect(`/verified/error=true & message=${message}`);
                         })
                     }).catch(err => {
                         console.log(err);
                         let message = "An error occurred while clearing expired user verification record.";
-                        res.redirect(`/user/verified/error=true&message=${message}`);
+                        res.redirect(`/verified/error=true&message=${message}`);
                     })
 
                 } else {
@@ -46,34 +46,34 @@ function VerifyRoute() {
                                 }).catch(err => {
                                     console.log(error);
                                     let message = "An error occurred while finalizing successful verification.";
-                                    res.redirect(`/user/verified/error=true&message=${message}`);
+                                    res.redirect(`/verified/error=true&message=${message}`);
                                 })
                             }).catch(err => {
                                 console.log(error);
                                 let message = "An error occurred while updating user record to show verified.";
-                                res.redirect(`/user/verified/error=true&message=${message}`);
+                                res.redirect(`/verified/error=true&message=${message}`);
                             })
 
                         } else {
                             // existing record but incorrect verification details passed.
                             let message = "Invalid verification details passed. Check your inbox.";
-                            res.redirect(`/user/verified/error=true&message=${message}`);
+                            res.redirect(`/verified/error=true&message=${message}`);
                         }
                     }
                     ).catch(err => {
                         let message = "An error occurred while comparing unique strings.";
-                        res.redirect(`/user/verified/error=true&message=${message}`);
+                        res.redirect(`/verified/error=true&message=${message}`);
                     })
                 }
             } else {
                 // user verification record doesn't exist
                 let message = "Account record doesn't exist or has been verified already. Please sign up or log in.";
-                res.redirect(`/user/verified/error=true&message=${message}`);
+                res.redirect(`/verified/error=true&message=${message}`);
             }
         }).catch(err => {
             console.log(err);
             let message = "An error occurred while checking for existing user verification record";
-            res.redirect(`/user/verified/error=true&message=${message}`);
+            res.redirect(`/verified/error=true&message=${message}`);
         });
     });
 
